@@ -57,7 +57,7 @@
 																<label for="nomeBusca" class="sr-only">Nome</label>
 																<input type="text" class="form-control" id="nomeBusca" name="nomeBusca"
 																	placeholder="Nome" aria-describedby="basic-addon2" aria-label="nomeBusca">						
-																<button class="btn btn-primary mb-2" onclick="buscarUsuario();">Pesquisar</button>
+																<button class="btn btn-primary mb-2" style="margin-top: 15px" onclick="buscarUsuario();">Pesquisar</button>
 															</div>
 															
 

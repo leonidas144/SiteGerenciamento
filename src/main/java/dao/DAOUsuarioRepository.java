@@ -23,26 +23,30 @@ public class DAOUsuarioRepository {
 		
 		if(objeto.isNew()) {
 		
-		String sql = "INSERT INTO login(login, senha, nome, email)VALUES (?, ?, ?, ?)";
+		String sql = "INSERT INTO login(login, senha, nome, email, perfil, sexo)VALUES (?, ?, ?, ?, ?, ?)";
 		
 		PreparedStatement preparedSql = connection.prepareStatement(sql);
 		preparedSql.setString(1, objeto.getLogin());
 		preparedSql.setString(2, objeto.getSenha());
 		preparedSql.setString(3, objeto.getNome());
 		preparedSql.setString(4, objeto.getEmail());
+		preparedSql.setString(5, objeto.getPerfil());
+		preparedSql.setString(6, objeto.getSexo());
 		
 		preparedSql.execute();
 		
 		connection.commit();
 				
 		}else {
-			String sql = "UPDATE login SET login=?, senha=?, nome=?, email=? WHERE id = "+objeto.getId()+";";
+			String sql = "UPDATE login SET login=?, senha=?, nome=?, email=?, perfil=?, sexo=? WHERE id = "+objeto.getId()+";";
 			
 			PreparedStatement preparedSql = connection.prepareStatement(sql);
 			preparedSql.setString(1, objeto.getLogin());
 			preparedSql.setString(2, objeto.getSenha());
 			preparedSql.setString(3, objeto.getNome());
 			preparedSql.setString(4, objeto.getEmail());
+			preparedSql.setString(5, objeto.getPerfil());
+			preparedSql.setString(6, objeto.getSexo());
 			
 			preparedSql.executeUpdate();
 			
@@ -70,6 +74,9 @@ public class DAOUsuarioRepository {
 			modelLogin.setId(resultado.getLong("id"));
 			modelLogin.setLogin(resultado.getString("login"));
 			modelLogin.setNome(resultado.getString("nome"));
+			modelLogin.setPerfil(resultado.getString("perfil"));
+			modelLogin.setSexo(resultado.getString("sexo"));
+			
 			
 			retorno.add(modelLogin);
 		}
@@ -96,6 +103,8 @@ public class DAOUsuarioRepository {
 			modelLogin.setLogin(resultado.getString("login"));
 			modelLogin.setSenha(resultado.getString("senha"));
 			modelLogin.setNome(resultado.getString("nome"));
+			modelLogin.setPerfil(resultado.getString("perfil"));
+			modelLogin.setSexo(resultado.getString("sexo"));
 		}
 		
 		return modelLogin;
@@ -119,6 +128,8 @@ public class DAOUsuarioRepository {
 			modelLogin.setLogin(resultado.getString("login"));
 			modelLogin.setSenha(resultado.getString("senha"));
 			modelLogin.setNome(resultado.getString("nome"));
+			modelLogin.setPerfil(resultado.getString("perfil"));
+			modelLogin.setSexo(resultado.getString("sexo"));
 		}
 		
 		return modelLogin;
