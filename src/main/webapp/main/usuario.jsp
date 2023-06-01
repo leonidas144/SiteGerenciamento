@@ -1,7 +1,7 @@
 
 <%@page import="model.modelLogin"%>
 
-<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
+<%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="ISO-8859-1"%>
 	
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>  
@@ -117,6 +117,55 @@
 															</div>
 															
 															 <div class="form-group form-default form-static-label">
+																<input onblur= "pesquisaCep();" type="text" name="cep" id="cep"
+																	class="form-control" required="required"
+																	value="${modelLogin.cep}"> <span
+																	class="form-bar"></span> <label class="float-label">CEP</label>
+															</div>
+															
+															<div class="form-group form-default form-static-label">
+																<input type="text" name="logradouro" id="logradouro"
+																	class="form-control" required="required"
+																	value="${modelLogin.logradouro}"> <span
+																	class="form-bar"></span> <label class="float-label">Rua</label>
+															</div>
+															
+															<div class="form-group form-default form-static-label">
+																<input type="text" name="numero" id="numero"
+																	class="form-control" required="required"
+																	value="${modelLogin.numero}"> <span
+																	class="form-bar"></span> <label class="float-label">Número</label>
+															</div>
+															
+															<div class="form-group form-default form-static-label">
+																<input type="text" name="complemento" id="complemento"
+																	class="form-control" required="required"
+																	value="${modelLogin.complemento}"> <span
+																	class="form-bar"></span> <label class="float-label">Complemento</label>
+															</div>
+																														
+															<div class="form-group form-default form-static-label">
+																<input type="text" name="bairro" id="bairro"
+																	class="form-control" required="required"
+																	value="${modelLogin.bairro}"> <span
+																	class="form-bar"></span> <label class="float-label">Bairro</label>
+															</div>
+															
+															<div class="form-group form-default form-static-label">
+																<input type="text" name="localidade" id="localidade"
+																	class="form-control" required="required"
+																	value="${modelLogin.localidade}"> <span
+																	class="form-bar"></span> <label class="float-label">Cidade</label>
+															</div>
+															
+															<div class="form-group form-default form-static-label">
+																<input type="text" name="uf" id="uf"
+																	class="form-control" required="required"
+																	value="${modelLogin.uf}"> <span
+																	class="form-bar"></span> <label class="float-label">UF</label>
+															</div>
+															
+															 <div class="form-group form-default form-static-label">
                                                              <input type="radio" name="sexo" checked="checked" value="masculino"<%
                                                             
 	                                                             modelLogin = (modelLogin) request.getAttribute("modelLogin");
@@ -142,15 +191,25 @@
                                                              %> >Feminino</>
                                                             </div>
                                                             
+                                                           
+                                                                                                                        
                                                             <div class="form-group form-default input-group mb-4">
                                                             	<div class="input-group-prepend">
-                                                            		<img alt="imageUser" src="" id="fotoembase64" width="70px">
+                                                            	<c:if test="${modelLogin.fotoUser != '' && modelLogin.fotoUser != null}">
+                                                            		<a href="<%=request.getContextPath()%>/ServletUsuarioController?acao=downloadFoto&id=${modelLogin.id}">
+                                                            			<img alt="imageUser" id="fotoembase64" src="${modelLogin.fotoUser}" width="70px">
+                                                            		</a>
+                                                            	</c:if>
+                                                            	
+                                                            	<c:if test="${modelLogin.fotoUser == '' || modelLogin.fotoUser == null}">
+                                                            		<img alt="imageUser" id="fotoembase64" src="assets/images/avatar-blank.jpg" width="70px">
+                                                            	</c:if>
+                                                            		
                                                             	</div>
                                                             	<input type="file" accept="image/*" onchange="vizualizarImg('fotoembase64','fileFoto')" id="fileFoto" name="fileFoto" class="form-control-file" style="margin-top: 15px; margin-left: 5px">
-                                                            
-                                                            
+                                                                                                                        
                                                             </div>
-
+                                                            
 															<button type="button" class="btn btn-secondary waves-effect waves-light" onclick="limparForm();">Novo</button>
 															<button class="btn btn-success waves-effect waves-light">Salvar</button>
 															<button type="button" class="btn btn-danger waves-effect waves-light" onclick="criarDelete();">Excluir</button>
@@ -181,6 +240,22 @@
 	<jsp:include page="JavaScript.jsp"></jsp:include>
 
 	<script type="text/javascript">
+		
+		function pesquisaCep(){
+			var cep = $("#cep").val();
+			
+			$.getJSON("https://viacep.com.br/ws/"+ cep +"/json/?callback=?", function(dados) {
+				if(!("erro" in dados)){
+					$("#logradouro").val(dados.logradouro);
+                    $("#bairro").val(dados.bairro);
+                    $("#localidade").val(dados.localidade);
+                    $("#uf").val(dados.uf);
+				}
+				
+			});
+		}
+	
+		
 		
 		function limparForm() {
 			var elements = document.getElementById("formUser").elements;

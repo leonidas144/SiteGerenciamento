@@ -62,7 +62,7 @@ public class ServletUsuarioController extends HttpServlet {
 			 }
 			 			
 			request.setAttribute("tabelaHTML", tabelaHTML);
-			
+			request.setAttribute("totalPagina", daoUsuarioRepository.totalPaginas());
 			request.getRequestDispatcher("main/pesquisa.jsp").forward(request, response);
 						
 		}else if(acao != null && !acao.isEmpty() && acao.equalsIgnoreCase("editarUser")) {
@@ -76,6 +76,18 @@ public class ServletUsuarioController extends HttpServlet {
 			
 			
 					
+		}else if(acao != null && !acao.isEmpty() && acao.equalsIgnoreCase("downloadFoto")) {
+			String idUser = request.getParameter("id");
+			
+			modelLogin modelLogin = daoUsuarioRepository.consultaUsuarioId(idUser);
+			if(modelLogin.getFotoUser() != null && !modelLogin.getFotoUser().isEmpty()) {
+				response.setHeader("Content-Disposition", "attachment;filename=arquivo." + modelLogin.getExtensaoFotoUser());
+				response.getOutputStream().write(new Base64().decodeBase64(modelLogin.getFotoUser().split("\\,")[1]));
+			}
+
+			
+		
+		
 		}else {
 			request.getRequestDispatcher("main/usuario.jsp").forward(request, response);
 		}
@@ -103,6 +115,13 @@ public class ServletUsuarioController extends HttpServlet {
 			String senha = request.getParameter("senha");
 			String perfil = request.getParameter("perfil");
 			String sexo = request.getParameter("sexo");
+			String cep = request.getParameter("cep");
+			String logradouro = request.getParameter("logradouro");
+			String complemento = request.getParameter("complemento");
+			String numero = request.getParameter("numero");
+			String bairro = request.getParameter("bairro");
+			String localidade = request.getParameter("localidade");
+			String uf = request.getParameter("uf");
 			
 			
 			model.modelLogin modelLogin = new modelLogin();
@@ -113,12 +132,24 @@ public class ServletUsuarioController extends HttpServlet {
 			modelLogin.setSenha(senha);
 			modelLogin.setPerfil(perfil);
 			modelLogin.setSexo(sexo);
+			modelLogin.setCep(cep);
+			modelLogin.setLogradouro(logradouro);
+			modelLogin.setComplemento(complemento);
+			modelLogin.setNumero(numero);
+			modelLogin.setBairro(bairro);
+			modelLogin.setLocalidade(localidade);
+			modelLogin.setUf(uf);
 			
 			if(ServletFileUpload.isMultipartContent(request)) {
 				Part part = request.getPart("fileFoto"); // Pega a foto da tela
-				byte[] foto = IOUtils.toByteArray(part.getInputStream()); //Converte IMG para byte
-				String imagemBase64 = new Base64().encodeBase64String(foto);
-				System.out.println(imagemBase64);
+				
+				if(part.getSize() > 0) {
+					byte[] foto = IOUtils.toByteArray(part.getInputStream()); //Converte IMG para byte
+					String imagemBase64 = "data:image/" + part.getContentType().split("\\/")[1] + ";base64," + new Base64().encodeBase64String(foto);
+					
+					modelLogin.setFotoUser(imagemBase64);
+					modelLogin.setExtensaoFotoUser(part.getContentType().split("\\/")[1]);
+				}
 			}
 			
 			if(daoUsuarioRepository.validaLogin(modelLogin.getLogin()) && modelLogin.getId() == null) {
