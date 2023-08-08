@@ -1,6 +1,8 @@
 package servlets;
 
 import java.io.IOException;
+import java.sql.Date;
+import java.text.SimpleDateFormat;
 import java.util.List;
 
 import org.apache.tomcat.jakartaee.commons.compress.utils.IOUtils;
@@ -16,6 +18,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.Part;
 import model.modelLogin;
+import util.ReportUtil;
 
 
 @MultipartConfig
@@ -85,7 +88,66 @@ public class ServletUsuarioController extends HttpServlet {
 				response.getOutputStream().write(new Base64().decodeBase64(modelLogin.getFotoUser().split("\\,")[1]));
 			}
 
+		}else if(acao != null && !acao.isEmpty() && acao.equalsIgnoreCase("imprimirRelatorioUser")) {
 			
+			String dataInicial = request.getParameter("dataInicial");
+			String dataFinal = request.getParameter("dataFinal");
+			
+			if(dataInicial == null || dataInicial.isEmpty() && dataFinal == null || dataFinal.isEmpty()) {
+				request.setAttribute("listaUser", daoUsuarioRepository.consultaUsuarioListRelatorio());
+			
+			}else {
+				request.setAttribute("listaUser", daoUsuarioRepository.consultaUsuarioListRelatorio(dataInicial, dataFinal));
+			}
+			
+			
+			request.setAttribute("dataInicial", dataInicial);
+			request.setAttribute("dataFinal", dataFinal);
+			request.getRequestDispatcher("main/reluser.jsp").forward(request, response);
+			
+			
+			
+		}else if(acao != null && !acao.isEmpty() && acao.equalsIgnoreCase("imprimirRelatorioPDF")){
+			
+			String dataInicial = request.getParameter("dataInicial");
+			String dataFinal = request.getParameter("dataFinal");
+			
+			List<modelLogin> modelLogins = null;
+			
+			if(dataInicial == null || dataInicial.isEmpty() && dataFinal == null || dataFinal.isEmpty()) {
+				request.setAttribute("listaUser", daoUsuarioRepository.consultaUsuarioListRelatorio());
+				
+				modelLogins = daoUsuarioRepository.consultaUsuarioListRelatorio();
+			
+			}else {
+				modelLogins = daoUsuarioRepository.consultaUsuarioListRelatorio(dataInicial, dataFinal);
+			}
+			
+			byte[] relatorio = new ReportUtil().gerarRelatorioPDF(modelLogins, "rel", request.getServletContext());
+			
+			response.setHeader("Content-Disposition", "attachment;filename=arquivo.pdf");
+			response.getOutputStream().write(relatorio);
+		
+	
+		}else if(acao != null && !acao.isEmpty() && acao.equalsIgnoreCase("imprimirProcuracao")){
+			
+			String id = request.getParameter("id");
+						
+			List<modelLogin> modelLogins = null;
+			
+			if(id == null || id.isEmpty()) {
+				//request.setAttribute("listaUser", daoUsuarioRepository.consultaUsuarioListRelatorio());
+				
+				modelLogins = (List<modelLogin>) daoUsuarioRepository.editarUsuario(id);
+			
+			}else {
+				modelLogins = (List<modelLogin>) daoUsuarioRepository.editarUsuario(id);
+			}
+			
+			byte[] relatorio = new ReportUtil().gerarProcuracaoPDF(modelLogins, "rel", request.getServletContext());
+			
+			response.setHeader("Content-Disposition", "attachment;filename=arquivo.pdf");
+			response.getOutputStream().write(relatorio);
 		
 		
 		}else {
@@ -122,6 +184,10 @@ public class ServletUsuarioController extends HttpServlet {
 			String bairro = request.getParameter("bairro");
 			String localidade = request.getParameter("localidade");
 			String uf = request.getParameter("uf");
+			String dataNascimento = request.getParameter("dataNascimento");
+			String rendamensal = request.getParameter("rendamensal");
+			
+			rendamensal = rendamensal.split("\\ ")[1].replaceAll("\\.", "").replaceAll("\\,", ".");
 			
 			
 			model.modelLogin modelLogin = new modelLogin();
@@ -139,6 +205,10 @@ public class ServletUsuarioController extends HttpServlet {
 			modelLogin.setBairro(bairro);
 			modelLogin.setLocalidade(localidade);
 			modelLogin.setUf(uf);
+			modelLogin.setDataNascimento(Date.valueOf(new SimpleDateFormat("yyyy-mm-dd").format(new SimpleDateFormat("dd/mm/yyyy").parse(dataNascimento))));
+			modelLogin.setRendamensal(Double.valueOf(rendamensal));
+			
+			
 			
 			if(ServletFileUpload.isMultipartContent(request)) {
 				Part part = request.getPart("fileFoto"); // Pega a foto da tela

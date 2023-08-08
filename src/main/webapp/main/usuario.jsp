@@ -94,6 +94,20 @@
 															</select>
 															<span class="form-bar"></span> <label class="float-label">Função</label>
 															</div>
+															
+															<div class="form-group form-default form-static-label">
+																<input type="text" name="dataNascimento" id="dataNascimento"
+																	class="form-control" required="required"
+																	value="${modelLogin.dataNascimento}"> <span
+																	class="form-bar"></span> <label class="float-label">Data Nascimento</label>
+															</div>
+															
+															<div class="form-group form-default form-static-label">
+																<input type="text" name="rendamensal" id="rendamensal"
+																	class="form-control" required="required"
+																	value="${modelLogin.rendamensal}"> <span
+																	class="form-bar"></span> <label class="float-label">Renda Mensal</label>
+															</div>
 																													
 															<div class="form-group form-default form-static-label">
 																<input type="email" name="email" id="email"
@@ -213,6 +227,7 @@
 															<button type="button" class="btn btn-secondary waves-effect waves-light" onclick="limparForm();">Novo</button>
 															<button class="btn btn-success waves-effect waves-light">Salvar</button>
 															<button type="button" class="btn btn-danger waves-effect waves-light" onclick="criarDelete();">Excluir</button>
+															<button type="submit" onclick="imprimirPdf()" class="btn btn-primary">Imprimir Procuração</button>
 														</form>
 
 
@@ -240,6 +255,49 @@
 	<jsp:include page="JavaScript.jsp"></jsp:include>
 
 	<script type="text/javascript">
+	
+	function imprimirPdf(){
+		document.getElementById("acaoRelatorioImprimirTipo").value = 'imprimirProcuracao';
+		$("#formUser").submit();
+	}
+	
+	$("#rendamensal").maskMoney({showSymbol:true, symbol:"R$ ", decimal:",",thousands:"."});
+	
+	const formatter = new Intl.NumberFormat('pt-BR',{
+		currency: 'BRL',
+		minimumFractionDigits: 2
+	});
+	
+	$("#rendamensal").val(formatter.format($("#rendamensal").val()));
+	
+	$("#rendamensal").focus();
+	
+	var dataNascimento = $("#dataNascimento").val();
+	
+	var dateFormat = new Date(dataNascimento);
+	
+	$("#dataNascimento").val(dateFormat.toLocaleDateString('pt-BR',{timeZone: 'UTC'}));
+	
+	$("#nome").focus();
+	
+	$( function() {
+		  
+		  $("#dataNascimento").datepicker({
+			    dateFormat: 'dd/mm/yy',
+			    changeMonth: true,
+			    changeYear: true,
+			    yearRange: "1900:2150",
+			    dayNames: ['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'],
+			    dayNamesMin: ['D','S','T','Q','Q','S','S','D'],
+			    dayNamesShort: ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb','Dom'],
+			    monthNames: ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'],
+			    monthNamesShort: ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'],
+			    nextText: 'Próximo',
+			    prevText: 'Anterior'
+			});
+	} );
+	
+	
 		
 		function pesquisaCep(){
 			var cep = $("#cep").val();

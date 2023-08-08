@@ -1,8 +1,10 @@
 package dao;
 
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,7 +25,7 @@ public class DAOUsuarioRepository {
 		
 		if(objeto.isNew()) {
 		
-		String sql = "INSERT INTO login(login, senha, nome, email, perfil, sexo, cep, logradouro, complemento, numero, bairro, localidade, uf)VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+		String sql = "INSERT INTO login(login, senha, nome, email, perfil, sexo, cep, logradouro, complemento, numero, bairro, localidade, uf, dataNascimento, rendamensal)VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 		
 		PreparedStatement preparedSql = connection.prepareStatement(sql);
 		preparedSql.setString(1, objeto.getLogin());
@@ -39,6 +41,8 @@ public class DAOUsuarioRepository {
 		preparedSql.setString(11, objeto.getBairro());
 		preparedSql.setString(12, objeto.getLocalidade());
 		preparedSql.setString(13, objeto.getUf());
+		preparedSql.setDate(14, objeto.getDataNascimento());
+		preparedSql.setDouble(15, objeto.getRendamensal());
 		
 		preparedSql.execute();
 		
@@ -58,7 +62,7 @@ public class DAOUsuarioRepository {
 		}
 		
 		}else {
-			String sql = "UPDATE login SET login=?, senha=?, nome=?, email=?, perfil=?, sexo=?, cep=?, logradouro=?, complemento=?, numero=?, bairro=?, localidade=?, uf=?  WHERE id = "+objeto.getId()+";";
+			String sql = "UPDATE login SET login=?, senha=?, nome=?, email=?, perfil=?, sexo=?, cep=?, logradouro=?, complemento=?, numero=?, bairro=?, localidade=?, uf=?, dataNascimento=?, rendamensal=?  WHERE id = "+objeto.getId()+";";
 			
 			PreparedStatement preparedSql = connection.prepareStatement(sql);
 			preparedSql.setString(1, objeto.getLogin());
@@ -74,6 +78,8 @@ public class DAOUsuarioRepository {
 			preparedSql.setString(11, objeto.getBairro());
 			preparedSql.setString(12, objeto.getLocalidade());
 			preparedSql.setString(13, objeto.getUf());
+			preparedSql.setDate(14, objeto.getDataNascimento());
+			preparedSql.setDouble(15, objeto.getRendamensal());
 			
 			preparedSql.executeUpdate();
 			
@@ -102,10 +108,64 @@ public class DAOUsuarioRepository {
 		
 		List<modelLogin> retorno = new ArrayList<modelLogin>();
 		
-		String sql = "SELECT * FROM login WHERE useradmin is false and UPPER(nome) LIKE UPPER (?) ";
+		String sql = "SELECT * FROM login WHERE useradmin is false and UPPER(nome) LIKE UPPER (?) order by id ";
 		PreparedStatement statement = connection.prepareStatement(sql);
 		statement.setString(1, "%" + nome + "%");
 		
+		ResultSet resultado = statement.executeQuery();
+		
+		while(resultado.next()) {
+			modelLogin modelLogin = new modelLogin();
+			modelLogin.setEmail(resultado.getString("email"));
+			modelLogin.setId(resultado.getLong("id"));
+			modelLogin.setLogin(resultado.getString("login"));
+			modelLogin.setNome(resultado.getString("nome"));
+			modelLogin.setPerfil(resultado.getString("perfil"));
+			modelLogin.setSexo(resultado.getString("sexo"));
+			
+			
+			retorno.add(modelLogin);
+		}
+		
+		return retorno;
+	}
+	
+	
+	public List<modelLogin> consultaUsuarioListRelatorio() throws Exception{
+			
+			List<modelLogin> retorno = new ArrayList<modelLogin>();
+			
+			String sql = "SELECT * FROM login WHERE useradmin is false order by id ";
+			PreparedStatement statement = connection.prepareStatement(sql);
+						
+			ResultSet resultado = statement.executeQuery();
+			
+			while(resultado.next()) {
+				modelLogin modelLogin = new modelLogin();
+				modelLogin.setEmail(resultado.getString("email"));
+				modelLogin.setId(resultado.getLong("id"));
+				modelLogin.setLogin(resultado.getString("login"));
+				modelLogin.setNome(resultado.getString("nome"));
+				modelLogin.setPerfil(resultado.getString("perfil"));
+				modelLogin.setSexo(resultado.getString("sexo"));
+				
+				
+				retorno.add(modelLogin);
+			}
+			
+			return retorno;
+		}
+	
+	public List<modelLogin> consultaUsuarioListRelatorio(String dataInicial, String dataFinal) throws Exception{
+		
+		List<modelLogin> retorno = new ArrayList<modelLogin>();
+		
+		String sql = "SELECT * FROM login WHERE useradmin is false and datanascimento >= ? and datanascimento <= ? order by id ";
+		PreparedStatement statement = connection.prepareStatement(sql);
+		statement.setDate(1, Date.valueOf(new SimpleDateFormat("yyyy-mm-dd").format(new SimpleDateFormat("dd/mm/yyyy").parse(dataInicial))));
+		statement.setDate(2, Date.valueOf(new SimpleDateFormat("yyyy-mm-dd").format(new SimpleDateFormat("dd/mm/yyyy").parse(dataFinal))));
+		
+					
 		ResultSet resultado = statement.executeQuery();
 		
 		while(resultado.next()) {
@@ -178,6 +238,10 @@ public class DAOUsuarioRepository {
 			modelLogin.setBairro(resultado.getString("bairro"));
 			modelLogin.setLocalidade(resultado.getString("localidade"));
 			modelLogin.setUf(resultado.getString("uf"));
+			modelLogin.setDataNascimento(resultado.getDate("datanascimento"));
+			modelLogin.setRendamensal(resultado.getDouble("rendamensal"));
+
+			
 						
 		}
 		
@@ -212,6 +276,9 @@ public class DAOUsuarioRepository {
 				modelLogin.setBairro(resultado.getString("bairro"));
 				modelLogin.setLocalidade(resultado.getString("localidade"));
 				modelLogin.setUf(resultado.getString("uf"));
+				modelLogin.setDataNascimento(resultado.getDate("datanascimento"));
+				modelLogin.setRendamensal(resultado.getDouble("rendamensal"));
+
 				
 			}
 			
@@ -245,6 +312,9 @@ public class DAOUsuarioRepository {
 			modelLogin.setBairro(resultado.getString("bairro"));
 			modelLogin.setLocalidade(resultado.getString("localidade"));
 			modelLogin.setUf(resultado.getString("uf"));
+			modelLogin.setDataNascimento(resultado.getDate("datanascimento"));
+			modelLogin.setRendamensal(resultado.getDouble("rendamensal"));
+			
 		}
 		
 		return modelLogin;
